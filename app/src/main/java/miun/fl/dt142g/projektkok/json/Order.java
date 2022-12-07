@@ -1,15 +1,31 @@
 package miun.fl.dt142g.projektkok.json;
 
-public class CombinedOrders {
+import java.io.Serializable;
+
+public class Order implements Serializable {
     private Booking booking;
     private Dish dish;
     private Employee employee;
+    private String note;
     private int id;
-    private String notes;
     private boolean status;
-    private String category;
-    private String description;
-    private int price;
+    private boolean served;
+
+    public boolean isServed() {
+        return served;
+    }
+
+    public void setServed(boolean served) {
+        this.served = served;
+    }
+
+    public String getNote() {
+        return note;
+    }
+
+    public void setNote(String note) {
+        this.note = note;
+    }
 
     public Booking getBooking() {
         return booking;
@@ -43,43 +59,11 @@ public class CombinedOrders {
         this.id = id;
     }
 
-    public String getNotes() {
-        return notes;
-    }
-
-    public void setNotes(String notes) {
-        this.notes = notes;
-    }
-
     public boolean isStatus() {
         return status;
     }
 
     public void setStatus(boolean status) {
         this.status = status;
-    }
-
-    public String getCategory() {
-        return category;
-    }
-
-    public void setCategory(String category) {
-        this.category = category;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public int getPrice() {
-        return price;
-    }
-
-    public void setPrice(int price) {
-        this.price = price;
     }
 }
