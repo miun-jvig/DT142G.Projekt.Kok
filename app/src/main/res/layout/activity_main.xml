@@ -19,15 +19,17 @@
         app:layout_constraintVertical_bias="1.0">
 
         <ScrollView
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:id="@+id/scrollMain"
+            android:layout_width="122dp"
+            android:layout_height="732dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
+            app:layout_constraintTop_toTopOf="parent"
+            tools:ignore="SpeakableTextPresentCheck">
 
             <LinearLayout
-                android:id="@+id/LinearLayout"
+                android:id="@+id/LinearLayoutMain"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical" />
