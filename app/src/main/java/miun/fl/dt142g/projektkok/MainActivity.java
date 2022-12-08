@@ -94,15 +94,15 @@ public class MainActivity extends AppCompatActivity {
         combinedOrder2.setId(booking.getTableNumber());
         combinedOrder2.setStatus(false);
         combinedOrder2.setNotes("Alex är sur ikväll!");
-            combinedOrder3.setBooking(booking2);
-            combinedOrder3.setDish(dish3);
-            combinedOrder3.setEmployee(employee);
-            combinedOrder3.setPrice(100);
-            combinedOrder3.setCategory("Varmrätt");
-            combinedOrder3.setDescription("A pile of corned beef, slices of Swiss cheese, Franks Kraut and Thousand Island dressing grilled between two slices of bread!");
-            combinedOrder3.setId(booking.getTableNumber());
-            combinedOrder3.setStatus(false);
-            combinedOrder3.setNotes("Kvällen är ung! - Joel, klockan 01:09");
+        combinedOrder3.setBooking(booking2);
+        combinedOrder3.setDish(dish3);
+        combinedOrder3.setEmployee(employee);
+        combinedOrder3.setPrice(100);
+        combinedOrder3.setCategory("Varmrätt");
+        combinedOrder3.setDescription("A pile of corned beef, slices of Swiss cheese, Franks Kraut and Thousand Island dressing grilled between two slices of bread!");
+        combinedOrder3.setId(booking.getTableNumber());
+        combinedOrder3.setStatus(false);
+        combinedOrder3.setNotes("Kvällen är ung! - Joel, klockan 01:09");
 
         allOrders.add(combinedOrder);
         allOrders.add(combinedOrder2);
