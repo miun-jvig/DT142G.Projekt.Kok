@@ -1,7 +1,6 @@
 package miun.fl.dt142g.projektkok;
 
 import androidx.appcompat.app.AppCompatActivity;
-
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.Bundle;
@@ -14,22 +13,19 @@ import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
+import com.google.gson.internal.LinkedTreeMap;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import miun.fl.dt142g.projektkok.json.APIClient;
-import miun.fl.dt142g.projektkok.json.Booking;
-import miun.fl.dt142g.projektkok.json.CombinedOrders;
 import miun.fl.dt142g.projektkok.json.CombinedOrdersAPI;
-import miun.fl.dt142g.projektkok.json.Dish;
-import miun.fl.dt142g.projektkok.json.Employee;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
 public class MainActivity extends AppCompatActivity {
-    private final ArrayList<CombinedOrders> allOrders = new ArrayList<>();
-    private final ArrayList<CombinedOrders> finishedOrders = new ArrayList<>();
+    private final ArrayList<List<Object>> allOrders = new ArrayList<>();
+    private final ArrayList<List<Object>> finishedOrders = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,28 +33,28 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         CombinedOrdersAPI combinedOrdersAPI = APIClient.getClient().create(CombinedOrdersAPI.class);
-        Call<List<CombinedOrders>> call = combinedOrdersAPI.getOrders();
-        call.enqueue(new Callback<List<CombinedOrders>>() {
+        Call<List<List<Object>>> call = combinedOrdersAPI.getOrders();
+        call.enqueue(new Callback<List<List<Object>>>() {
             @Override
-            public void onResponse(Call<List<CombinedOrders>> call, Response<List<CombinedOrders>> response) {
+            public void onResponse(Call<List<List<Object>>> call, Response<List<List<Object>>> response) {
                 if(!response.isSuccessful()) {
                     Toast.makeText(getApplicationContext(),"Helvete!" , Toast.LENGTH_LONG).show();
                     return;
                 }
-                List<CombinedOrders> combinedOrders = response.body();
+                List<List<Object>> combinedOrders = response.body();
                 if(!Objects.requireNonNull(combinedOrders).isEmpty()) {
                     allOrders.addAll(combinedOrders);
                     createOrders(allOrders);
                 }
             }
             @Override
-            public void onFailure(Call<List<CombinedOrders>> call, Throwable t) {
+            public void onFailure(Call<List<List<Object>>> call, Throwable t) {
                 Toast.makeText(getApplicationContext(),"Network error, cannot reach DB." , Toast.LENGTH_LONG).show();
             }
         });
     }
 
-    public void createOrders(ArrayList<CombinedOrders> allOrders) {
+    public void createOrders(List<List<Object>> allOrders) {
         TableLayout tableLayout = findViewById(R.id.TableLayout);
         // REMOVES ALL BUTTONS ON CALL TO MAKE DROPDOWN MENU WORK CORRECT
         tableLayout.removeAllViews();
@@ -92,10 +88,12 @@ public class MainActivity extends AppCompatActivity {
                     LinearLayout linearLayout = orderView.findViewById(R.id.LinearLayoutOrder);
 
                     // VARIABLES
-                    CombinedOrders order = allOrders.get(orderCounter++);
+                    List<Object> currentListObject = allOrders.get(orderCounter++);
+                    LinkedTreeMap order = (LinkedTreeMap) currentListObject.get(0);
+                    LinkedTreeMap booking = (LinkedTreeMap) order.get("booking");
                     TextView title_view = orderView.findViewById(R.id.titleView);
                     Button button = orderView.findViewById(R.id.buttonDone);
-                    String title = "Bord: " + order.getBooking().getTableNumber();
+                    String title = "Bord: " + booking.get("tableNumber");
                     String done = "Klar";
 
                     // SET
@@ -104,16 +102,19 @@ public class MainActivity extends AppCompatActivity {
                     orderView.setBackgroundColor(getResources().getColor(R.color.appOrange));
 
                     // WRITE OUT ORDER AND NOTES
-                    for(CombinedOrders orders : allOrders){
-                        if(orders.getBooking().getTableNumber() == order.getBooking().getTableNumber()) {
+                    for(List<Object> obj : allOrders){
+                        LinkedTreeMap orders = (LinkedTreeMap) obj.get(0);
+                        LinkedTreeMap bookings = (LinkedTreeMap) orders.get("booking");
+                        LinkedTreeMap dish = (LinkedTreeMap) orders.get("dish");
+                        if(bookings.get("tableNumber") == booking.get("tableNumber")) {
                             TextView orderInfo = new TextView(this);
-                            String textOrder = orders.getDish().getName();
+                            String textOrder = (String) dish.get("name");
                             createTextView(orderInfo, textOrder, 16);
                             linearLayout.addView(orderInfo);
 
-                            if (orders.getNotes() != null) {
+                            if (orders.get("notes") != null) {
                                 TextView orderNote = new TextView(this);
-                                String textNote = "- " + orders.getNotes();
+                                String textNote = "- " + orders.get("notes");
                                 createTextView(orderNote, textNote, 12);
                                 linearLayout.addView(orderNote);
                             }
@@ -124,7 +125,7 @@ public class MainActivity extends AppCompatActivity {
                     tableRow.addView(orderView);
 
                     // ON BUTTON PRESS
-                    button.setOnClickListener(v -> onOrderButtonPress(order));
+                    button.setOnClickListener(v -> onOrderButtonPress(currentListObject));
                 }
             }
             tableLayout.addView(tableRow);
@@ -137,7 +138,7 @@ public class MainActivity extends AppCompatActivity {
         textView.setTextColor(getResources().getColor(R.color.black));
     }
 
-    public void onOrderButtonPress(CombinedOrders order){
+    public void onOrderButtonPress(List<Object> order){
         finishedOrders.add(order);
         allOrders.remove(order);
         createOrders(allOrders);
@@ -151,15 +152,17 @@ public class MainActivity extends AppCompatActivity {
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, HEIGHT);
         params.setMargins(0, MARGIN, 0, MARGIN);
 
-        for(CombinedOrders orders : finishedOrders){
+        for(List<Object> obj : finishedOrders){
+            LinkedTreeMap orders = (LinkedTreeMap) obj.get(0);
+            LinkedTreeMap booking = (LinkedTreeMap) orders.get("booking");
             Button button = new Button(this);
-            button.setText(String.valueOf(orders.getBooking().getTableNumber()));
+            button.setText(String.valueOf(booking.get("tableNumber")));
             button.setLayoutParams(params);
             linearLayout.addView(button);
             button.setOnClickListener(v -> {
                 linearLayout.removeView(button);
-                finishedOrders.remove(orders);
-                allOrders.add(orders);
+                finishedOrders.remove(obj);
+                allOrders.add(obj);
                 createOrders(allOrders);
             });
         }

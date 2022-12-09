@@ -5,6 +5,6 @@ import retrofit2.Call;
 import retrofit2.http.GET;
 
 public interface CombinedOrdersAPI {
-    @GET("combinedOrders")
-    Call<List<CombinedOrders>> getOrders();
+    @GET("orders/kitchen")
+    Call<List<List<Object>>> getOrders();
 }
