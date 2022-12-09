@@ -103,18 +103,20 @@ public class MainActivity extends AppCompatActivity {
 
                     // WRITE OUT ORDER AND NOTES
                     for(List<Object> obj : allOrders){
-                        LinkedTreeMap orders = (LinkedTreeMap) obj.get(0);
-                        LinkedTreeMap bookings = (LinkedTreeMap) orders.get("booking");
-                        LinkedTreeMap dish = (LinkedTreeMap) orders.get("dish");
-                        if(bookings.get("tableNumber") == booking.get("tableNumber")) {
+                        LinkedTreeMap currentOrder = (LinkedTreeMap) obj.get(0);
+                        LinkedTreeMap currentBooking = (LinkedTreeMap) currentOrder.get("booking");
+                        LinkedTreeMap currentDish = (LinkedTreeMap) currentOrder.get("dish");
+                        double currentTableNumber = (double) currentBooking.get("tableNumber");
+                        double tableNumber = (double) booking.get("tableNumber");
+                        if(currentTableNumber == tableNumber) {
                             TextView orderInfo = new TextView(this);
-                            String textOrder = (String) dish.get("name");
+                            String textOrder = (String) currentDish.get("name");
                             createTextView(orderInfo, textOrder, 16);
                             linearLayout.addView(orderInfo);
 
-                            if (orders.get("notes") != null) {
+                            if (currentOrder.get("notes") != null) {
                                 TextView orderNote = new TextView(this);
-                                String textNote = "- " + orders.get("notes");
+                                String textNote = "- " + currentOrder.get("notes");
                                 createTextView(orderNote, textNote, 12);
                                 linearLayout.addView(orderNote);
                             }
