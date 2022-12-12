@@ -1,22 +1,24 @@
 package miun.fl.dt142g.projektkok.json;
 
 public class CombinedOrders {
-    private Booking booking;
-    private Dish dish;
-    private Employee employee;
     private int id;
+    private Dish dish;
+    private Booking booking;
+    private Employee employee;
     private String notes;
-    private boolean status;
+    private Boolean status;
+    private Boolean served;
+    private String time;
+    private int price;
     private String category;
     private String description;
-    private int price;
 
-    public Booking getBooking() {
-        return booking;
+    public int getId() {
+        return id;
     }
 
-    public void setBooking(Booking booking) {
-        this.booking = booking;
+    public void setId(int id) {
+        this.id = id;
     }
 
     public Dish getDish() {
@@ -27,20 +29,20 @@ public class CombinedOrders {
         this.dish = dish;
     }
 
+    public Booking getBooking() {
+        return booking;
+    }
+
+    public void setBooking(Booking booking) {
+        this.booking = booking;
+    }
+
     public Employee getEmployee() {
         return employee;
     }
 
     public void setEmployee(Employee employee) {
         this.employee = employee;
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
     }
 
     public String getNotes() {
@@ -51,12 +53,36 @@ public class CombinedOrders {
         this.notes = notes;
     }
 
-    public boolean isStatus() {
+    public Boolean getStatus() {
         return status;
     }
 
-    public void setStatus(boolean status) {
+    public void setStatus(Boolean status) {
         this.status = status;
+    }
+
+    public Boolean getServed() {
+        return served;
+    }
+
+    public void setServed(Boolean served) {
+        this.served = served;
+    }
+
+    public String getTime() {
+        return time;
+    }
+
+    public void setTime(String time) {
+        this.time = time;
+    }
+
+    public int getPrice() {
+        return price;
+    }
+
+    public void setPrice(int price) {
+        this.price = price;
     }
 
     public String getCategory() {
@@ -73,13 +99,5 @@ public class CombinedOrders {
 
     public void setDescription(String description) {
         this.description = description;
-    }
-
-    public int getPrice() {
-        return price;
-    }
-
-    public void setPrice(int price) {
-        this.price = price;
     }
 }

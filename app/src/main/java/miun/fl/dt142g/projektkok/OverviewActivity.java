@@ -13,7 +13,6 @@ import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -71,9 +70,10 @@ public class OverviewActivity extends AppCompatActivity {
         final int MARGIN = (int) getResources().getDimension(R.dimen.margin);
         final int MARGIN_SIZE = MARGIN * ROW_SIZE * 2;
         final int SIDEBAR_SIZE = (int) getResources().getDimension(R.dimen.sidebar);
-        final int SIZE = (getResources().getDisplayMetrics().widthPixels - SIDEBAR_SIZE - MARGIN_SIZE) / ROW_SIZE;
+        final int HEIGHT = (getResources().getDisplayMetrics().widthPixels - SIDEBAR_SIZE - MARGIN_SIZE) / ROW_SIZE;
+        final int WIDTH = (int) (HEIGHT * 1.3);
         // PARAMETERS FOR THE Button
-        TableRow.LayoutParams params = new TableRow.LayoutParams(SIZE, SIZE);
+        TableRow.LayoutParams params = new TableRow.LayoutParams(HEIGHT, WIDTH);
         params.setMargins(MARGIN, MARGIN, MARGIN, MARGIN);
 
         // CREATE ROW
@@ -91,14 +91,11 @@ public class OverviewActivity extends AppCompatActivity {
                     // VARIABLES
                     CombinedOrders order = allOrders.get(orderCounter++);
                     TextView title_view = orderView.findViewById(R.id.titleView);
-                    Button button = orderView.findViewById(R.id.buttonDone);
                     String title = "Bord: " + order.getBooking().getTableNumber();
-                    String done = "Klar";
 
                     // SET
                     title_view.setText(title);
-                    button.setText(done);
-                    orderView.setBackgroundColor(getResources().getColor(R.color.appOrange));
+                    orderView.setBackgroundColor(getResources().getColor(R.color.appGray));
 
                     // WRITE OUT ORDER AND NOTES
                     for(CombinedOrders currentOrder : allOrders){
@@ -120,8 +117,8 @@ public class OverviewActivity extends AppCompatActivity {
                     // ADD TO ROW
                     tableRow.addView(orderView);
 
-                    // ON BUTTON PRESS
-                    button.setOnClickListener(v -> onOrderButtonPress(order));
+                    // ON FIRST BUTTON PRESS
+                    orderView.setOnClickListener(v -> onOrderMarkStatusAsTrue(orderView, order));
                 }
             }
             tableLayout.addView(tableRow);
@@ -132,6 +129,17 @@ public class OverviewActivity extends AppCompatActivity {
         textView.setText(text);
         textView.setTextSize(textSize);
         textView.setTextColor(getResources().getColor(R.color.black));
+    }
+
+    public void onOrderMarkStatusAsTrue(View orderView, CombinedOrders order){
+        // SET BACKGROUND COLOR
+        orderView.setBackgroundColor(getResources().getColor(R.color.appGreen));
+
+        // SEND NOTIFICATION
+        // to be created
+
+        // ON SECOND BUTTON PRESS
+        orderView.setOnClickListener(v -> onOrderButtonPress(order));
     }
 
     public void onOrderButtonPress(CombinedOrders order){
@@ -156,7 +164,7 @@ public class OverviewActivity extends AppCompatActivity {
             button.setOnClickListener(v -> {
                 linearLayout.removeView(button);
                 finishedOrders.remove(currentOrder);
-                allOrders.add(currentOrder);
+                allOrders.add(0, currentOrder);
                 createOrders(allOrders);
             });
         }
