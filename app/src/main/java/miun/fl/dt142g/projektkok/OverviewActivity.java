@@ -88,7 +88,7 @@ public class OverviewActivity extends AppCompatActivity {
                     orderView.setLayoutParams(params);
                     LinearLayout linearLayout = orderView.findViewById(R.id.LinearLayoutOrder);
 
-                    // VARIABLES
+                    // VARIABLESx
                     CombinedOrders order = allOrders.get(orderCounter++);
                     TextView title_view = orderView.findViewById(R.id.titleView);
                     String title = "Bord: " + order.getBooking().getTableNumber();
