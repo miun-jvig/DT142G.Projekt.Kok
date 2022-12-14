@@ -41,18 +41,10 @@ public class OverviewActivity extends AppCompatActivity {
     }
 
     /**
-     * updateALlViews() removes all views from the window and then creates layouts in main window
-     * and buttons in side window depending on information from the DB.
+     * updateAllViews() retrieves all orders from the DB and creates layouts
+     * getAllOrdersCreateLayouts() and then creates all all side buttons via createSideButtons().
      */
     public void updateAllViews(){
-        // ALL LAYOUTS WITH VIEWS
-        TableLayout tableLayout = findViewById(R.id.TableLayout);
-        LinearLayout sideBarLayout = findViewById(R.id.LinearLayoutMain);
-
-        // REMOVE VIEWS
-        sideBarLayout.removeAllViews();
-        tableLayout.removeAllViews();
-
         getAllOrdersCreateLayouts();
         createSideButtons();
     }
@@ -97,6 +89,10 @@ public class OverviewActivity extends AppCompatActivity {
      * onClickListener is also implemented for dishes on the same table.
      */
     public void createSideButtons(){
+        // REMOVES ALL VIEWS TO CREATE NEW ONES
+        LinearLayout sideBarLayout = findViewById(R.id.LinearLayoutMain);
+        sideBarLayout.removeAllViews();
+        // CALL TO DB
         Call<List<CombinedOrders>> callServed = COMBINED_ORDERS_API.getOrdersServed();
         callServed.enqueue(new Callback<List<CombinedOrders>>() {
             @Override
@@ -162,13 +158,17 @@ public class OverviewActivity extends AppCompatActivity {
      * @param allOrders a list containing all orders in db (api/orders/kitchen + api/orders/ready)
      */
     public void createOrderLayouts(ArrayList<CombinedOrders> allOrders){
+        // REMOVES ALL VIEWS TO CREATE NEW ONES
         TableLayout tableLayout = findViewById(R.id.TableLayout);
+        tableLayout.removeAllViews();
+
+        // VARIABLES
         final int ROW_SIZE = 4;
+        int orderCounter = 0;
         double temp = (double) allOrders.size() / ROW_SIZE;
         /* columnSize uses Math.ceil in case value of temp is a non-integer. In this case will
          *  round up to create an additional row.
          */
-        int orderCounter = 0;
         final double COLUMN_SIZE = Math.ceil(temp);
         final int MARGIN = (int) getResources().getDimension(R.dimen.margin);
         final int MARGIN_SIZE = MARGIN * ROW_SIZE * 2;
