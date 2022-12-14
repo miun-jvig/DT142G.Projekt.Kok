@@ -89,9 +89,6 @@ public class OverviewActivity extends AppCompatActivity {
      * onClickListener is also implemented for dishes on the same table.
      */
     public void createSideButtons(){
-        // REMOVES ALL VIEWS TO CREATE NEW ONES
-        LinearLayout sideBarLayout = findViewById(R.id.LinearLayoutMain);
-        sideBarLayout.removeAllViews();
         // CALL TO DB
         Call<List<CombinedOrders>> callServed = COMBINED_ORDERS_API.getOrdersServed();
         callServed.enqueue(new Callback<List<CombinedOrders>>() {
@@ -105,7 +102,7 @@ public class OverviewActivity extends AppCompatActivity {
                 if(!Objects.requireNonNull(combinedOrders).isEmpty()) {
                     // VIEW FOR BUTTONS TO BE CREATED IN
                     LinearLayout linearLayout = findViewById(R.id.LinearLayoutMain);
-
+                    linearLayout.removeAllViews();
                     // PARAMETERS FOR THE BUTTON
                     final int HEIGHT = 200;
                     final int MARGIN = 5;
