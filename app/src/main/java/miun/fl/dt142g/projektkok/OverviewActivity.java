@@ -42,7 +42,7 @@ public class OverviewActivity extends AppCompatActivity {
 
     /**
      * updateALlViews() removes all views from the window and then creates layouts in main window
-     * and buttons in side window depending on information from the DB.x
+     * and buttons in side window depending on information from the DB.
      */
     public void updateAllViews(){
         // ALL LAYOUTS WITH VIEWS
