@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -29,15 +30,27 @@ import retrofit2.Response;
 public class OverviewActivity extends AppCompatActivity {
     private final CombinedOrdersAPI COMBINED_ORDERS_API = APIClient.getClient().create(CombinedOrdersAPI.class);
     private final OrderAPI ORDER_API = APIClient.getClient().create(OrderAPI.class);
+    private final Handler HANDLER = new Handler();
     private final String NON_SUCCESSFUL_RESPONSE = "Something went wrong.";
     private final String FAILED_DB_CONNECTION = "Network error, cannot reach database.";
+    private final int DELAY_MS = 10000;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        // TODO - Fix so updateAllViews() runs every 10th second or so.
+
+        // ON FIRST RUN, UPDATE ALL VIEWS
         updateAllViews();
+
+        // EVERY DELAY_MS, UPDATE ALL VIEWS
+        HANDLER.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                updateAllViews();
+                HANDLER.postDelayed(this, DELAY_MS);
+            }
+        }, DELAY_MS);
     }
 
     /**
@@ -46,7 +59,7 @@ public class OverviewActivity extends AppCompatActivity {
      */
     public void updateAllViews(){
         getAllOrdersCreateLayouts();
-        createSideButtons();
+        getAllServedCreateSideButtons();
     }
 
     /**
@@ -68,6 +81,10 @@ public class OverviewActivity extends AppCompatActivity {
                     return;
                 }
                 List<CombinedOrders> combinedOrders = response.body();
+                // REMOVES ALL VIEWS WHEN THIS IS CALLED
+                TableLayout tableLayout = findViewById(R.id.TableLayout);
+                tableLayout.removeAllViews();
+
                 if(!Objects.requireNonNull(combinedOrders).isEmpty()) {
                     createOrderLayouts((ArrayList<CombinedOrders>) combinedOrders);
                 }
@@ -85,10 +102,9 @@ public class OverviewActivity extends AppCompatActivity {
      * Note that these orders have the following attributes:
      * status = true (i.e. dish is cooked)
      * served = true (i.e. dish is served)
-     * The information from the database will then create buttons for all the tables. An
-     * onClickListener is also implemented for dishes on the same table.
+     * The information is then sent to function createSideButtons to create buttons in the side view.
      */
-    public void createSideButtons(){
+    public void getAllServedCreateSideButtons(){
         // CALL TO DB
         Call<List<CombinedOrders>> callServed = COMBINED_ORDERS_API.getOrdersServed();
         callServed.enqueue(new Callback<List<CombinedOrders>>() {
@@ -98,47 +114,13 @@ public class OverviewActivity extends AppCompatActivity {
                     Toast.makeText(getApplicationContext(),NON_SUCCESSFUL_RESPONSE, Toast.LENGTH_LONG).show();
                     return;
                 }
+                // VIEW FOR BUTTONS TO BE CREATED IN
+                LinearLayout linearLayout = findViewById(R.id.LinearLayoutMain);
+                linearLayout.removeAllViews();
+
                 List<CombinedOrders> combinedOrders = response.body();
                 if(!Objects.requireNonNull(combinedOrders).isEmpty()) {
-                    // VIEW FOR BUTTONS TO BE CREATED IN
-                    LinearLayout linearLayout = findViewById(R.id.LinearLayoutMain);
-                    linearLayout.removeAllViews();
-                    // PARAMETERS FOR THE BUTTON
-                    final int HEIGHT = 200;
-                    final int MARGIN = 5;
-                    final int SIZE_COMBINED_ORDERS = combinedOrders.size();
-                    int orderCounter = 0;
-                    LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, HEIGHT);
-                    params.setMargins(0, MARGIN, 0, MARGIN);
-
-                    // CREATES BUTTON FOR EACH TABLE DEPENDING ON NUMBER AND TIME FOR ORDER
-                    for(int i = 0; i < SIZE_COMBINED_ORDERS; i++) {
-                        // IF-STATEMENT TO AVOID combinedOrders.get(orderCounter) TO GO OUTSIDE BOUNDS
-                        if(orderCounter < SIZE_COMBINED_ORDERS) {
-                            // CURRENT ORDER
-                            ArrayList<CombinedOrders> ordersOnCurrentTable = new ArrayList<>();
-                            CombinedOrders currentOrder = combinedOrders.get(orderCounter);
-                            // CREATE BUTTON OF CURRENT ORDER, NOTE THAT orderCounter IS INCREMENTED IF tableNumber & getTime IS SAME
-                            Button button = new Button(OverviewActivity.this);
-                            button.setText(String.valueOf(currentOrder.getBooking().getTableNumber()));
-                            button.setLayoutParams(params);
-                            linearLayout.addView(button);
-
-                            for (CombinedOrders otherOrder : combinedOrders) {
-                                if (currentOrder.getBooking().getTableNumber() == otherOrder.getBooking().getTableNumber() && currentOrder.getTime().equals(otherOrder.getTime())) {
-                                    ordersOnCurrentTable.add(otherOrder);
-                                    // INCREMENT orderCounter TO SKIP IN MAIN LOOP IF SEVERAL ORDERS ON SAME TABLE
-                                    orderCounter++;
-                                }
-                            }
-
-                            button.setOnClickListener(v -> {
-                                linearLayout.removeView(button);
-                                // SET STATUS + SERVED AS FALSE ON CLICK, WILL MAKE IT APPEAR ON MAIN WINDOW
-                                setOrderStatusAndServed(button, ordersOnCurrentTable, false, false);
-                            });
-                        }
-                    }
+                    createSideButtons((ArrayList<CombinedOrders>) combinedOrders);
                 }
             }
             @Override
@@ -149,15 +131,61 @@ public class OverviewActivity extends AppCompatActivity {
     }
 
     /**
+     * Retrieves all orders from database via allOrders and creates layouts in the side window of
+     * the application. The layouts will be clickable and will contain information about each
+     * dish on the same tableNumber.
+     * @param combinedOrders a list containing all orders in db (api/orders/served).
+     */
+    public void createSideButtons(ArrayList<CombinedOrders> combinedOrders){
+        // VIEW
+        LinearLayout linearLayout = findViewById(R.id.LinearLayoutMain);
+        // PARAMETERS FOR THE BUTTON
+        final int HEIGHT = 200;
+        final int MARGIN = 5;
+        final int SIZE_COMBINED_ORDERS = combinedOrders.size();
+        int orderCounter = 0;
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, HEIGHT);
+        params.setMargins(0, MARGIN, 0, MARGIN);
+
+        // CREATES BUTTON FOR EACH TABLE DEPENDING ON NUMBER AND TIME FOR ORDER
+        for(int i = 0; i < SIZE_COMBINED_ORDERS; i++) {
+            // IF-STATEMENT TO AVOID combinedOrders.get(orderCounter) TO GO OUTSIDE BOUNDS
+            if(orderCounter < SIZE_COMBINED_ORDERS) {
+                // CURRENT ORDER
+                ArrayList<CombinedOrders> ordersOnCurrentTable = new ArrayList<>();
+                CombinedOrders currentOrder = combinedOrders.get(orderCounter);
+                // CREATE BUTTON OF CURRENT ORDER, NOTE THAT orderCounter IS INCREMENTED IF tableNumber & getTime IS SAME
+                Button button = new Button(OverviewActivity.this);
+                button.setText(String.valueOf(currentOrder.getBooking().getTableNumber()));
+                button.setLayoutParams(params);
+                linearLayout.addView(button);
+
+                for (CombinedOrders otherOrder : combinedOrders) {
+                    if (currentOrder.getBooking().getTableNumber() == otherOrder.getBooking().getTableNumber() && currentOrder.getTime().equals(otherOrder.getTime())) {
+                        ordersOnCurrentTable.add(otherOrder);
+                        // INCREMENT orderCounter TO SKIP IN MAIN LOOP IF SEVERAL ORDERS ON SAME TABLE
+                        orderCounter++;
+                    }
+                }
+
+                button.setOnClickListener(v -> {
+                    linearLayout.removeView(button);
+                    // SET STATUS + SERVED AS FALSE ON CLICK, WILL MAKE IT APPEAR ON MAIN WINDOW
+                    setOrderStatusAndServed(button, ordersOnCurrentTable, false, false);
+                });
+            }
+        }
+    }
+
+    /**
      * Retrieves all orders from database via allOrders and creates layouts in the main window of
      * the application. The layouts will be clickable and will contain information about each
      * dish on the same tableNumber.
-     * @param allOrders a list containing all orders in db (api/orders/kitchen + api/orders/ready)
+     * @param allOrders a list containing all orders in db (api/orders/kitchen + api/orders/ready).
      */
     public void createOrderLayouts(ArrayList<CombinedOrders> allOrders){
-        // REMOVES ALL VIEWS TO CREATE NEW ONES
+        // VIEW
         TableLayout tableLayout = findViewById(R.id.TableLayout);
-        tableLayout.removeAllViews();
 
         // VARIABLES
         final int ROW_SIZE = 4;
