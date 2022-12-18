@@ -54,8 +54,9 @@ public class OverviewActivity extends AppCompatActivity {
     }
 
     /**
-     * updateAllViews() retrieves all orders from the DB and creates layouts
-     * getAllOrdersCreateLayouts() and then creates all all side buttons via createSideButtons().
+     * updateAllViews() retrieves all orders from the DB and creates layouts via createOrderLayouts()
+     * getAllOrdersCreateLayouts() retrieves all orders from the DB and creates buttons
+     * via createSideButtons().
      */
     public void updateAllViews(){
         getAllOrdersCreateLayouts();
@@ -105,8 +106,8 @@ public class OverviewActivity extends AppCompatActivity {
      * The information is then sent to function createSideButtons to create buttons in the side view.
      */
     public void getAllServedCreateSideButtons(){
-        // CALL TO DB
         Call<List<CombinedOrders>> callServed = COMBINED_ORDERS_API.getOrdersServed();
+
         callServed.enqueue(new Callback<List<CombinedOrders>>() {
             @Override
             public void onResponse(@NonNull Call<List<CombinedOrders>> call, @NonNull Response<List<CombinedOrders>> response) {
@@ -198,10 +199,10 @@ public class OverviewActivity extends AppCompatActivity {
         final int MARGIN = (int) getResources().getDimension(R.dimen.margin);
         final int MARGIN_SIZE = MARGIN * ROW_SIZE * 2;
         final int SIDEBAR_SIZE = (int) getResources().getDimension(R.dimen.sidebar);
-        final int HEIGHT = (getResources().getDisplayMetrics().widthPixels - SIDEBAR_SIZE - MARGIN_SIZE) / ROW_SIZE;
-        final int WIDTH = (int) (HEIGHT * 1.3);
+        final int WIDTH = (getResources().getDisplayMetrics().widthPixels - SIDEBAR_SIZE - MARGIN_SIZE) / ROW_SIZE;
+        final int HEIGHT = (int) (WIDTH * 1.3);
         // PARAMETERS FOR THE Button
-        TableRow.LayoutParams params = new TableRow.LayoutParams(HEIGHT, WIDTH);
+        TableRow.LayoutParams params = new TableRow.LayoutParams(WIDTH, HEIGHT);
         params.setMargins(MARGIN, MARGIN, MARGIN, MARGIN);
 
         // CREATE ROW
