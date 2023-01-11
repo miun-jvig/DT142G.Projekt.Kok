@@ -291,9 +291,8 @@ public class OverviewActivity extends AppCompatActivity {
                     if (!response.isSuccessful()) {
                         Toast.makeText(getApplicationContext(), NON_SUCCESSFUL_RESPONSE, Toast.LENGTH_LONG).show();
                     }
-                    if(order == orderList.get(0)) {
-                        updateAllViews();
-                    }
+                    // UPDATE ALL VIEWS
+                    updateAllViews();
                 }
                 @Override
                 public void onFailure(@NonNull Call<Order> call, @NonNull Throwable t) {
